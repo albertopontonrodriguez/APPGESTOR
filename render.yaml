@@ -39,7 +39,7 @@ services:
           name: gestor-db
           property: port
       - key: ALLOWED_HOSTS
-        value: *
+        value: "*"
       - key: CSRF_TRUSTED_ORIGINS
         value: https://*.onrender.com
       - key: CREATE_SUPERUSER_USERNAME
