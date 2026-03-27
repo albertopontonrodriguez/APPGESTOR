@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Nuevo pago | GESTOR{% endblock %}
+{% block content %}
+<section class="page-head">
+    <div>
+        <h2>Nuevo pago</h2>
+        <p>Reserva: {{ booking.traveler }} · {{ booking.trip }}</p>
+    </div>
+</section>
+<section class="panel form-panel">
+    <form method="post" class="form-grid form-grid-2">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions full-row">
+            <a href="{% url 'bookings:detail' booking.pk %}" class="btn-secondary">Volver</a>
+            <button type="submit" class="btn-primary">Guardar pago</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

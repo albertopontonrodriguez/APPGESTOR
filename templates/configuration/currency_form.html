@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block title %}Moneda | GESTOR{% endblock %}
+{% block content %}
+<section class="page-head"><div><h2>Moneda</h2><p>Alta o edición de moneda.</p></div></section>
+<section class="panel narrow-panel">
+    <form method="post" class="form-grid">{% csrf_token %}{{ form.as_p }}<div class="form-actions"><a href="{% url 'configuration:currencies_list' %}" class="btn-secondary">Cancelar</a><button type="submit" class="btn-primary">Guardar</button></div></form>
+</section>
+{% endblock %}

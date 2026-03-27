@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Configuración | GESTOR{% endblock %}
+{% block content %}
+<section class="page-head">
+    <div>
+        <h2>Configuración</h2>
+        <p>Catálogos editables para monedas, idiomas y estados operativos.</p>
+    </div>
+</section>
+<section class="cards-grid cards-grid-6">
+    <article class="stat-card"><span class="stat-label">Monedas</span><strong class="stat-value">{{ currencies_count }}</strong></article>
+    <article class="stat-card"><span class="stat-label">Idiomas</span><strong class="stat-value">{{ languages_count }}</strong></article>
+    <article class="stat-card"><span class="stat-label">Estados</span><strong class="stat-value">{{ statuses_count }}</strong></article>
+</section>
+<section class="three-col">
+    <article class="panel">
+        <h3 class="panel-title">Monedas</h3>
+        <p class="muted">Gestiona divisas activas para marcas, viajes, reservas, gastos y facturas.</p>
+        <div class="inline-links">
+            <a href="{% url 'configuration:currencies_list' %}" class="btn-secondary">Ver monedas</a>
+            {% if request.user.can_manage_configuration %}<a href="{% url 'configuration:currencies_create' %}" class="btn-primary">Nueva moneda</a>{% endif %}
+        </div>
+    </article>
+    <article class="panel">
+        <h3 class="panel-title">Idiomas</h3>
+        <p class="muted">Configura idiomas disponibles para viajeros y marcas.</p>
+        <div class="inline-links">
+            <a href="{% url 'configuration:languages_list' %}" class="btn-secondary">Ver idiomas</a>
+            {% if request.user.can_manage_configuration %}<a href="{% url 'configuration:languages_create' %}" class="btn-primary">Nuevo idioma</a>{% endif %}
+        </div>
+    </article>
+    <article class="panel">
+        <h3 class="panel-title">Estados</h3>
+        <p class="muted">Permite renombrar y activar o desactivar estados operativos sin tocar código.</p>
+        <div class="inline-links">
+            <a href="{% url 'configuration:statuses_list' %}" class="btn-secondary">Ver estados</a>
+            {% if request.user.can_manage_configuration %}<a href="{% url 'configuration:statuses_create' %}" class="btn-primary">Nuevo estado</a>{% endif %}
+        </div>
+    </article>
+
+    <article class="panel">
+        <h3 class="panel-title">Google Sheets</h3>
+        <p class="muted">Sincroniza automáticamente viajeros, viajes, reservas, gastos y facturas con una hoja real de Google.</p>
+        <div class="inline-links">
+            <a href="{% url 'configuration:google_sheets' %}" class="btn-secondary">Configurar Google Sheets</a>
+            {% if google_sheets_config and google_sheets_config.spreadsheet_url %}
+                <a href="{{ google_sheets_config.spreadsheet_url }}" class="btn-primary" target="_blank" rel="noopener">Abrir hoja</a>
+            {% endif %}
+        </div>
+    </article>
+
+    <article class="panel">
+        <h3 class="panel-title">Mi contraseña</h3>
+        <p class="muted">Cambia tu contraseña desde la propia aplicación.</p>
+        <div class="inline-links">
+            <a href="{% url 'management_ui:password_change' %}" class="btn-secondary">Cambiar contraseña</a>
+        </div>
+    </article>
+
+</section>
+<section class="panel">
+    <h3 class="panel-title">Grupos de estados configurados</h3>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead><tr><th>Grupo</th><th>Total</th></tr></thead>
+            <tbody>
+                {% for row in status_groups %}
+                    <tr><td>{{ row.status_group }}</td><td>{{ row.total }}</td></tr>
+                {% empty %}
+                    <tr><td colspan="2">Todavía no hay estados configurados.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

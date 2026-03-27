@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Google Sheets | GESTOR{% endblock %}
+{% block content %}
+<section class="page-head">
+    <div>
+        <h2>Google Sheets</h2>
+        <p>Conecta GESTOR con una hoja real de Google para crear o actualizar pestañas automáticamente.</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'configuration:home' %}" class="btn-secondary">Volver a configuración</a>
+        {% if instance and instance.spreadsheet_url %}
+            <a href="{{ instance.spreadsheet_url }}" class="btn-primary" target="_blank" rel="noopener">Abrir hoja de Google</a>
+        {% endif %}
+    </div>
+</section>
+<section class="panel form-panel">
+    <form method="post" class="form-grid form-grid-2">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="full-row panel subtle-panel">
+            <h3 class="panel-title">Estado actual</h3>
+            {% if instance %}
+                <div class="key-value compact-key-value">
+                    <span>Conexión activa</span><strong>{% if instance.is_enabled %}Sí{% else %}No{% endif %}</strong>
+                    <span>Sincronización automática</span><strong>{% if instance.auto_sync_enabled %}Sí{% else %}No{% endif %}</strong>
+                    <span>ID de hoja</span><strong>{{ instance.spreadsheet_id|default:'No asignada todavía' }}</strong>
+                    <span>Última sincronización</span><strong>{{ instance.last_sync_at|default:'Nunca' }}</strong>
+                </div>
+                {% if instance.last_error %}
+                    <p class="message error mt-16">Último error: {{ instance.last_error }}</p>
+                {% endif %}
+            {% else %}
+                <p class="muted">Todavía no hay una configuración guardada.</p>
+            {% endif %}
+        </div>
+        <div class="form-actions full-row">
+            <a href="{% url 'configuration:home' %}" class="btn-secondary">Cancelar</a>
+            {% if instance %}
+                <button type="submit" class="btn-primary">Guardar configuración</button>
+            {% else %}
+                <button type="submit" class="btn-primary">Crear configuración</button>
+            {% endif %}
+        </div>
+    </form>
+</section>
+{% if instance %}
+<section class="panel">
+    <h3 class="panel-title">Recomendaciones</h3>
+    <ul class="clean-list">
+        <li>Comparte la hoja de Google con el email de la cuenta de servicio que aparece dentro del JSON.</li>
+        <li>Activa primero la conexión y sincroniza desde Informes para crear las pestañas.</li>
+        <li>Si dejas vacío el ID de hoja, GESTOR creará una automáticamente.</li>
+    </ul>
+    <form method="post" action="{% url 'configuration:google_sheets_reset' %}" class="mt-16">
+        {% csrf_token %}
+        <button type="submit" class="btn-secondary">Desvincular hoja actual</button>
+    </form>
+</section>
+{% endif %}
+{% endblock %}

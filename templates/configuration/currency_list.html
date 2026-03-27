@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Monedas | GESTOR{% endblock %}
+{% block content %}
+<section class="page-head">
+    <div><h2>Monedas</h2><p>Catálogo editable de divisas.</p></div>
+    {% if request.user.can_manage_configuration %}<a href="{% url 'configuration:currencies_create' %}" class="btn-primary">Nueva moneda</a>{% endif %}
+</section>
+<section class="panel">
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead><tr><th>Código</th><th>Nombre</th><th>Símbolo</th><th>Activa</th><th>Orden</th><th></th></tr></thead>
+            <tbody>
+                {% for currency in currencies %}
+                    <tr>
+                        <td>{{ currency.code }}</td>
+                        <td>{{ currency.name }}</td>
+                        <td>{{ currency.symbol|default:'—' }}</td>
+                        <td>{{ currency.is_active|yesno:'Sí,No' }}</td>
+                        <td>{{ currency.sort_order }}</td>
+                        <td>{% if request.user.can_manage_configuration %}<a href="{% url 'configuration:currencies_update' currency.pk %}">Editar</a>{% else %}<span class="muted">Solo lectura</span>{% endif %}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6">No hay monedas cargadas.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Facturación | GESTOR{% endblock %}
+{% block content %}
+<section class="page-head">
+    <div>
+        <h2>Facturación</h2>
+        <p>Control de facturas emitidas y recibidas con base, IVA, total y estado.</p>
+    </div>
+    <div class="hero-actions">
+        {% if request.user.can_manage_finance %}<a href="{% url 'billing:issued_create' %}" class="btn-primary">Nueva factura emitida</a>{% endif %}
+        {% if request.user.can_manage_finance %}<a href="{% url 'billing:received_create' %}" class="btn-secondary">Nueva factura recibida</a>{% endif %}
+    </div>
+</section>
+<section class="cards-grid cards-grid-6">
+    <article class="stat-card"><span class="stat-label">Emitidas</span><strong class="stat-value">{{ issued_count }}</strong></article>
+    <article class="stat-card"><span class="stat-label">Recibidas</span><strong class="stat-value">{{ received_count }}</strong></article>
+    <article class="stat-card"><span class="stat-label">Total emitido</span><strong class="stat-value">{{ issued_total }} €</strong></article>
+    <article class="stat-card"><span class="stat-label">Total recibido</span><strong class="stat-value">{{ received_total }} €</strong></article>
+</section>
+<section class="two-col">
+    <article class="panel">
+        <div class="panel-header-inline">
+            <h3>Últimas emitidas</h3>
+            <a href="{% url 'billing:issued_list' %}">Ver listado</a>
+        </div>
+        <ul class="clean-list">
+            {% for invoice in recent_issued %}
+                <li><a href="{% url 'billing:issued_detail' invoice.pk %}">{{ invoice.invoice_number }}</a> <span class="meta-inline">{{ invoice.traveler }} · {{ invoice.total_amount }} {{ invoice.currency }}</span></li>
+            {% empty %}
+                <li>No hay facturas emitidas.</li>
+            {% endfor %}
+        </ul>
+    </article>
+    <article class="panel">
+        <div class="panel-header-inline">
+            <h3>Últimas recibidas</h3>
+            <a href="{% url 'billing:received_list' %}">Ver listado</a>
+        </div>
+        <ul class="clean-list">
+            {% for invoice in recent_received %}
+                <li><a href="{% url 'billing:received_detail' invoice.pk %}">{{ invoice.invoice_number }}</a> <span class="meta-inline">{{ invoice.supplier }} · {{ invoice.total_amount }} {{ invoice.currency }}</span></li>
+            {% empty %}
+                <li>No hay facturas recibidas.</li>
+            {% endfor %}
+        </ul>
+    </article>
+</section>
+{% endblock %}

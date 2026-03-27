@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}{% if object %}Editar factura emitida{% else %}Nueva factura emitida{% endif %} | GESTOR{% endblock %}
+{% block content %}
+<section class="page-head">
+    <div>
+        <h2>{% if object %}Editar factura emitida{% else %}Nueva factura emitida{% endif %}</h2>
+        <p>El total se autocompleta con base + IVA si lo dejas vacío.</p>
+    </div>
+</section>
+<section class="panel form-panel">
+    <form method="post" class="form-grid form-grid-2">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions full-row">
+            <a href="{% url 'billing:issued_list' %}" class="btn-secondary">Volver</a>
+            <button type="submit" class="btn-primary">Guardar</button>
+        </div>
+    </form>
+</section>
+{% if object %}
+<section class="two-col">
+    <article class="panel">
+        <div class="panel-header-inline"><h3>Documentos adjuntos</h3><span class="meta-inline">{{ object.attachments.count }} archivo{{ object.attachments.count|pluralize }}</span></div>
+        <ul class="clean-list">
+            {% for attachment in object.attachments.all %}
+                <li>
+                    <a href="{{ attachment.file.url }}" target="_blank">{{ attachment.title }}</a>
+                    <span class="meta-inline">· {{ attachment.created_at|date:'d/m/Y H:i' }}</span>
+                    {% if attachment.notes %}<div class="muted">{{ attachment.notes }}</div>{% endif %}
+                    <form method="post" action="{% url 'billing:issued_attachment_delete' object.pk attachment.pk %}" style="margin-top:.5rem;">{% csrf_token %}<button type="submit" class="btn-link danger-link">Eliminar</button></form>
+                </li>
+            {% empty %}
+                <li>No hay documentos adjuntos todavía.</li>
+            {% endfor %}
+        </ul>
+    </article>
+    <article class="panel form-panel">
+        <h3>Adjuntar imagen o PDF de factura</h3>
+        <form method="post" action="{% url 'billing:issued_attachment_create' object.pk %}" enctype="multipart/form-data" class="form-grid">
+            {% csrf_token %}
+            {{ attachment_form.as_p }}
+            <div class="form-actions"><button type="submit" class="btn-primary">Subir adjunto</button></div>
+        </form>
+    </article>
+</section>
+{% else %}
+<section class="panel">
+    <p class="muted">Después de guardar la factura emitida podrás adjuntar imágenes, PDFs u otros documentos desde su ficha.</p>
+</section>
+{% endif %}
+{% endblock %}

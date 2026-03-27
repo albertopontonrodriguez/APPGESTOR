@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Reserva | GESTOR{% endblock %}
+{% block content %}
+<section class="page-head">
+    <div>
+        <h2>Reserva de {{ booking.traveler }}</h2>
+        <p>{{ booking.trip }} · {{ booking.trip.brand.name }}</p>
+    </div>
+    <div class="hero-actions">
+        <a href="{% url 'bookings:update' booking.pk %}" class="btn-secondary">Editar reserva</a>
+        <a href="{% url 'bookings:payment_create' booking.pk %}" class="btn-primary">Añadir pago</a>
+    </div>
+</section>
+<section class="detail-grid">
+    <article class="panel">
+        <h3>Resumen</h3>
+        <dl class="detail-list">
+            <div><dt>Fecha de reserva</dt><dd>{{ booking.booking_date }}</dd></div>
+            <div><dt>Precio final</dt><dd>{{ booking.final_price }} {{ booking.currency }}</dd></div>
+            <div><dt>Señal requerida</dt><dd>{{ booking.required_deposit }} {{ booking.currency }}</dd></div>
+            <div><dt>Señal pagada</dt><dd>{{ booking.paid_deposit }} {{ booking.currency }}</dd></div>
+            <div><dt>Saldo pendiente</dt><dd>{{ booking.pending_balance }} {{ booking.currency }}</dd></div>
+            <div><dt>Estado</dt><dd>{{ booking.get_status_display }}</dd></div>
+            <div><dt>Vencimiento</dt><dd>{{ booking.due_date|default:'—' }}</dd></div>
+        </dl>
+    </article>
+    <article class="panel">
+        <h3>Relaciones</h3>
+        <dl class="detail-list">
+            <div><dt>Viajero</dt><dd><a href="{% url 'travelers:detail' booking.traveler.pk %}">{{ booking.traveler }}</a></dd></div>
+            <div><dt>Viaje</dt><dd><a href="{% url 'trips:detail' booking.trip.pk %}">{{ booking.trip }}</a></dd></div>
+            <div><dt>Destino</dt><dd>{{ booking.trip.destination }}</dd></div>
+            <div><dt>Notas internas</dt><dd>{{ booking.internal_notes|default:'—' }}</dd></div>
+        </dl>
+    </article>
+</section>
+<section class="two-col mt-16">
+    <article class="panel">
+        <div class="panel-header-inline">
+            <h3>Pagos</h3>
+            <a href="{% url 'bookings:payment_create' booking.pk %}">Registrar pago</a>
+        </div>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Importe</th>
+                        <th>Método</th>
+                        <th>Estado</th>
+                        <th>Ref.</th>
+                        <th>Conciliado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in booking.payments.all %}
+                        <tr>
+                            <td>{{ payment.payment_date }}</td>
+                            <td>{{ payment.amount }} {{ payment.currency }}</td>
+                            <td>{{ payment.get_method_display }}</td>
+                            <td>{{ payment.get_status_display }}</td>
+                            <td>{{ payment.reference|default:'—' }}</td>
+                            <td>{{ payment.is_reconciled|yesno:'Sí,No' }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="6">No hay pagos registrados.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+    <article class="panel">
+        <h3>Facturas emitidas vinculadas</h3>
+        <ul class="clean-list">
+            {% for invoice in booking.issued_invoices.all %}
+                <li>
+                    <a href="{% url 'billing:issued_detail' invoice.pk %}">{{ invoice.invoice_number }}</a>
+                    <span class="meta-inline">{{ invoice.total_amount }} {{ invoice.currency }}</span>
+                    <span class="meta-inline">{{ invoice.get_status_display }}</span>
+                </li>
+            {% empty %}
+                <li>No hay facturas emitidas vinculadas a esta reserva.</li>
+            {% endfor %}
+        </ul>
+    </article>
+</section>
+{% endblock %}

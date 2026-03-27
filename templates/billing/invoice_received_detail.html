@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}{{ invoice.invoice_number }} | GESTOR{% endblock %}
+{% block content %}
+<section class="page-head">
+    <div><h2>{{ invoice.invoice_number }}</h2><p>{{ invoice.brand.name }} · {{ invoice.issue_date }}</p></div>
+    <div class="hero-actions">
+        {% if request.user.can_manage_finance %}<a href="{% url 'billing:received_update' invoice.pk %}" class="btn-secondary">Editar</a>{% endif %}
+        <a href="{% url 'billing:received_pdf' invoice.pk %}" target="_blank" class="btn-primary">Abrir PDF</a>
+    </div>
+</section>
+<section class="detail-grid">
+    <article class="panel"><h3>Importes</h3><dl class="detail-list"><div><dt>Base imponible</dt><dd>{{ invoice.taxable_base }} {{ invoice.currency }}</dd></div><div><dt>IVA</dt><dd>{{ invoice.vat_amount }} {{ invoice.currency }}</dd></div><div><dt>Total</dt><dd>{{ invoice.total_amount }} {{ invoice.currency }}</dd></div></dl></article>
+    <article class="panel"><h3>Relaciones</h3><dl class="detail-list"><div><dt>Marca</dt><dd>{{ invoice.brand.name }}</dd></div><div><dt>Proveedor</dt><dd><a href="{% url 'expenses:suppliers_detail' invoice.supplier.pk %}">{{ invoice.supplier }}</a></dd></div><div><dt>Gasto asociado</dt><dd>{% if invoice.expense %}<a href="{% url 'expenses:expenses_detail' invoice.expense.pk %}">{{ invoice.expense.category }}</a>{% else %}—{% endif %}</dd></div><div><dt>Adjuntos</dt><dd>{{ invoice.attachments.count }}</dd></div><div><dt>Notas</dt><dd>{{ invoice.notes|default:'—' }}</dd></div></dl></article>
+</section>
+<section class="two-col">
+    <article class="panel"><div class="panel-header-inline"><h3>Documentos adjuntos</h3><span class="meta-inline">{{ invoice.attachments.count }} archivo{{ invoice.attachments.count|pluralize }}</span></div><ul class="clean-list">{% for attachment in invoice.attachments.all %}<li><a href="{{ attachment.file.url }}" target="_blank">{{ attachment.title }}</a> <span class="meta-inline">· {{ attachment.created_at|date:'d/m/Y H:i' }}</span>{% if attachment.notes %}<div class="muted">{{ attachment.notes }}</div>{% endif %}{% if request.user.can_manage_finance %}<form method="post" action="{% url 'billing:received_attachment_delete' invoice.pk attachment.pk %}" style="margin-top:.5rem;">{% csrf_token %}<button type="submit" class="btn-link danger-link">Eliminar</button></form>{% endif %}</li>{% empty %}<li>No hay documentos adjuntos todavía.</li>{% endfor %}</ul></article>
+    <article class="panel form-panel"><h3>Adjuntar imagen o PDF de factura</h3><p class="muted">Puedes subir fotos, escaneos, PDFs u otros archivos.</p>{% if request.user.can_manage_finance %}<form method="post" action="{% url 'billing:received_attachment_create' invoice.pk %}" enctype="multipart/form-data" class="form-grid">{% csrf_token %}{{ attachment_form.as_p }}<div class="form-actions"><button type="submit" class="btn-primary">Subir adjunto</button></div></form>{% else %}<p class="muted">Solo administradores y CEO pueden adjuntar o eliminar documentos en facturas.</p>{% endif %}</article>
+</section>
+{% endblock %}

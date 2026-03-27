@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Marcas | GESTOR{% endblock %}
+{% block content %}
+<section class="page-head">
+    <div>
+        <h2>Marcas</h2>
+        <p>Configuración base de cada negocio o marca.</p>
+    </div>
+    {% if request.user.can_manage_brands %}<a href="{% url 'brands:create' %}" class="btn-primary">Nueva marca</a>{% endif %}
+</section>
+<section class="panel">
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Marca</th>
+                    <th>Idioma</th>
+                    <th>Moneda</th>
+                    <th>Email</th>
+                    <th>Activa</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for brand in brands %}
+                    <tr>
+                        <td><a href="{% url 'brands:detail' brand.pk %}">{{ brand.name }}</a></td>
+                        <td>{{ brand.primary_language }}</td>
+                        <td>{{ brand.primary_currency }}</td>
+                        <td>{{ brand.email|default:'—' }}</td>
+                        <td>{{ brand.is_active|yesno:'Sí,No' }}</td>
+                        <td>{% if request.user.can_manage_brands %}<a href="{% url 'brands:update' brand.pk %}">Editar</a>{% else %}<span class="muted">Solo lectura</span>{% endif %}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6">Todavía no hay marcas.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

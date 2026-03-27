@@ -1,0 +1,86 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}GESTOR{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+</head>
+<body class="{% if request.resolver_match and request.resolver_match.url_name == 'login' %}login-page{% endif %}">
+    <div class="shell-bg"></div>
+    {% if not request.resolver_match or request.resolver_match.url_name != 'login' %}
+    <header class="site-header">
+        <div class="container header-shell">
+            <div class="brand-area">
+                <a href="{% url 'dashboard' %}" class="brand-link">
+                    <img src="{% static 'img/logo_gestor.png' %}" alt="GESTOR" class="brand-logo-image">
+                    <div>
+                        <h1 class="brand-title">GESTOR</h1>
+                        <p class="brand-subtitle">Gestión empresarial de viajes y expediciones</p>
+                    </div>
+                </a>
+            </div>
+            {% if request.user.is_authenticated %}
+                <div class="header-tools">
+                    <a href="{% url 'notifications:list' %}" class="notification-pill {% if header_unread_notifications_count %}has-alert{% endif %}">
+                        <span>Avisos</span>
+                        <strong>{{ header_unread_notifications_count|default:0 }}</strong>
+                    </a>
+                    <div class="user-summary-card">
+                        <span class="user-pill">{{ request.user }}</span>
+                        <span class="badge badge-role">{{ request.user.get_role_display }}</span>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        {% if request.user.is_authenticated %}
+            <div class="container nav-shell">
+                <div class="top-nav top-nav-primary top-nav-mainline">
+                    <div class="top-nav-left">
+                        <a href="{% url 'dashboard' %}">Inicio</a>
+                        <a href="{% url 'internal_chat:rooms' %}">Chat interno</a>
+                    </div>
+                    <div class="top-nav-right">
+                        <details class="nav-dropdown">
+                            <summary>Menú</summary>
+                            <div class="nav-dropdown-menu">
+                                <a href="{% url 'travelers:list' %}">Viajeros</a>
+                                <a href="{% url 'trips:list' %}">Viajes</a>
+                                <a href="{% url 'bookings:list' %}">Reservas</a>
+                                <a href="{% url 'planner:home' %}">Agenda</a>
+                                <a href="{% url 'planner:month_calendar' %}">Calendario</a>
+                                {% if request.user.can_manage_brands %}<a href="{% url 'brands:list' %}">Marcas</a>{% endif %}
+                                <a href="{% url 'expenses:home' %}">Gastos</a>
+                                <a href="{% url 'billing:home' %}">Facturación</a>
+                                <a href="{% url 'reports:home' %}">Informes</a>
+                                {% if request.user.can_manage_configuration %}<a href="{% url 'configuration:home' %}">Configuración</a>{% endif %}
+                            </div>
+                        </details>
+                        {% if request.user.is_admin_or_ceo %}<a href="{% url 'management_ui:home' %}">Administración</a>{% endif %}
+                        <a href="{% url 'logout' %}" class="nav-logout">Salir</a>
+                    </div>
+                </div>
+                {% if header_notifications %}
+                    <div class="header-notice-strip">
+                        {% for n in header_notifications %}
+                            <a href="{% url 'notifications:list' %}" class="mini-notice {% if not n.is_read %}unread{% endif %}">{{ n.message|truncatechars:70 }}</a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </header>
+    {% endif %}
+    <main class="container main-content">
+        {% if messages %}
+            <div class="messages-stack">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

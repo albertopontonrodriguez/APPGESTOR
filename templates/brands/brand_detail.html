@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}{{ brand.name }} | GESTOR{% endblock %}
+{% block content %}
+<section class="page-head">
+    <div>
+        <h2>{{ brand.name }}</h2>
+        <p>Ficha de marca.</p>
+    </div>
+    {% if request.user.can_manage_brands %}<a href="{% url 'brands:update' brand.pk %}" class="btn-primary">Editar</a>{% endif %}
+</section>
+<section class="detail-grid">
+    <article class="panel">
+        <h3>Datos generales</h3>
+        <dl class="detail-list">
+            <div><dt>Nombre legal</dt><dd>{{ brand.legal_name|default:'—' }}</dd></div>
+            <div><dt>NIF / CIF</dt><dd>{{ brand.tax_id|default:'—' }}</dd></div>
+            <div><dt>Email</dt><dd>{{ brand.email|default:'—' }}</dd></div>
+            <div><dt>Teléfono</dt><dd>{{ brand.phone|default:'—' }}</dd></div>
+            <div><dt>Web</dt><dd>{{ brand.website|default:'—' }}</dd></div>
+        </dl>
+    </article>
+    <article class="panel">
+        <h3>Configuración</h3>
+        <dl class="detail-list">
+            <div><dt>Idioma principal</dt><dd>{{ brand.primary_language }}</dd></div>
+            <div><dt>Moneda principal</dt><dd>{{ brand.primary_currency }}</dd></div>
+            <div><dt>Color</dt><dd><span class="color-chip" style="background: {{ brand.accent_color }};"></span> {{ brand.accent_color }}</dd></div>
+            <div><dt>Activa</dt><dd>{{ brand.is_active|yesno:'Sí,No' }}</dd></div>
+        </dl>
+    </article>
+</section>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block title %}Idioma | GESTOR{% endblock %}
+{% block content %}
+<section class="page-head"><div><h2>Idioma</h2><p>Alta o edición de idioma.</p></div></section>
+<section class="panel narrow-panel">
+    <form method="post" class="form-grid">{% csrf_token %}{{ form.as_p }}<div class="form-actions"><a href="{% url 'configuration:languages_list' %}" class="btn-secondary">Cancelar</a><button type="submit" class="btn-primary">Guardar</button></div></form>
+</section>
+{% endblock %}

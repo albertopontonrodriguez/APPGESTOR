@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}{% if object %}Editar reserva{% else %}Nueva reserva{% endif %} | GESTOR{% endblock %}
+{% block content %}
+<section class="page-head">
+    <div>
+        <h2>{% if object %}Editar reserva{% else %}Nueva reserva{% endif %}</h2>
+        <p>Reserva vinculada a viajero y viaje.</p>
+    </div>
+</section>
+<section class="panel form-panel">
+    <form method="post" class="form-grid form-grid-2">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions full-row">
+            <a href="{% url 'bookings:list' %}" class="btn-secondary">Volver</a>
+            <button type="submit" class="btn-primary">Guardar</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Facturas recibidas | GESTOR{% endblock %}
+{% block content %}
+<section class="page-head">
+    <div>
+        <h2>Facturas recibidas</h2>
+        <p>Facturación de proveedores y gastos asociados.</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'reports:dataset_google_sheets' 'invoices-received' %}?{{ request.GET.urlencode }}" class="btn-secondary">Exportar Google Sheets</a>
+        <a href="{% url 'reports:dataset_pdf' 'invoices-received' %}?{{ request.GET.urlencode }}" class="btn-secondary" target="_blank">Exportar PDF</a>
+        {% if request.user.can_manage_finance %}<a href="{% url 'billing:received_create' %}" class="btn-primary">Nueva factura recibida</a>{% endif %}
+    </div>
+</section>
+<section class="cards-grid cards-grid-6">
+    <article class="stat-card"><span class="stat-label">Total listado</span><strong class="stat-value">{{ total_amount }} €</strong></article>
+</section>
+<section class="panel filters-panel">
+    <form method="get" class="form-grid form-grid-2">
+        <p class="full-row">
+            <label for="id_q">Búsqueda</label>
+            <input id="id_q" type="search" name="q" value="{{ query }}" placeholder="Buscar por número, proveedor, marca o viaje">
+        </p>
+        <p>
+            <label for="id_brand">Marca</label>
+            <select id="id_brand" name="brand">
+                <option value="">Todas</option>
+                {% for brand in brands %}
+                    <option value="{{ brand.pk }}" {% if selected_brand == brand.pk|stringformat:'s' %}selected{% endif %}>{{ brand.name }}</option>
+                {% endfor %}
+            </select>
+        </p>
+        <p>
+            <label for="id_supplier">Proveedor</label>
+            <select id="id_supplier" name="supplier">
+                <option value="">Todos</option>
+                {% for supplier in suppliers %}
+                    <option value="{{ supplier.pk }}" {% if selected_supplier == supplier.pk|stringformat:'s' %}selected{% endif %}>{{ supplier }}</option>
+                {% endfor %}
+            </select>
+        </p>
+        <p>
+            <label for="id_currency">Moneda</label>
+            <select id="id_currency" name="currency">
+                <option value="">Todas</option>
+                {% for value, label in currencies %}
+                    <option value="{{ value }}" {% if selected_currency == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </p>
+        <p>
+            <label for="id_date_from">Fecha desde</label>
+            <input id="id_date_from" type="date" name="date_from" value="{{ date_from }}">
+        </p>
+        <p>
+            <label for="id_date_to">Fecha hasta</label>
+            <input id="id_date_to" type="date" name="date_to" value="{{ date_to }}">
+        </p>
+        <div class="form-actions full-row">
+            <a href="{% url 'billing:received_list' %}" class="btn-secondary">Limpiar</a>
+            <button type="submit" class="btn-primary">Filtrar</button>
+        </div>
+    </form>
+</section>
+<section class="panel">
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Número</th>
+                    <th>Fecha</th>
+                    <th>Marca</th>
+                    <th>Proveedor</th>
+                    <th>Gasto</th>
+                    <th>Total</th>
+                    <th>Adjuntos</th>
+                    <th>PDF</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for invoice in invoices %}
+                    <tr>
+                        <td><a href="{% url 'billing:received_detail' invoice.pk %}">{{ invoice.invoice_number }}</a></td>
+                        <td>{{ invoice.issue_date }}</td>
+                        <td>{{ invoice.brand.name }}</td>
+                        <td>{{ invoice.supplier }}</td>
+                        <td>{% if invoice.expense %}<a href="{% url 'expenses:expenses_detail' invoice.expense.pk %}">{{ invoice.expense.category }}</a>{% else %}—{% endif %}</td>
+                        <td>{{ invoice.total_amount }} {{ invoice.currency }}</td>
+                        <td>{{ invoice.attachments.count }}</td>
+                        <td><a href="{% url 'billing:received_pdf' invoice.pk %}" target="_blank">Ver PDF</a></td>
+                        <td class="table-actions"><a href="{% url 'billing:received_detail' invoice.pk %}">Ver/adjuntar</a>{% if request.user.can_manage_finance %}<a href="{% url 'billing:received_update' invoice.pk %}">Editar</a>{% endif %}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="9">No hay facturas recibidas todavía.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
