@@ -1,0 +1,50 @@
+databases:
+  - name: gestor-db
+    databaseName: gestor
+    user: gestor
+    plan: free
+
+services:
+  - type: web
+    name: gestor
+    runtime: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /accounts/login/
+    envVars:
+      - key: DEBUG
+        value: False
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DB_ENGINE
+        value: postgres
+      - key: DB_NAME
+        fromDatabase:
+          name: gestor-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: gestor-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: gestor-db
+          property: password
+      - key: DB_HOST
+        fromDatabase:
+          name: gestor-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: gestor-db
+          property: port
+      - key: ALLOWED_HOSTS
+        value: *
+      - key: CSRF_TRUSTED_ORIGINS
+        value: https://*.onrender.com
+      - key: CREATE_SUPERUSER_USERNAME
+        value: admin
+      - key: CREATE_SUPERUSER_PASSWORD
+        sync: false
+      - key: CREATE_SUPERUSER_EMAIL
+        value: admin@gestor.local
